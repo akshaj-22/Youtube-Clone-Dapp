@@ -1,25 +1,111 @@
-import { Menu, Mic, MoonStar, Search, Sun } from "lucide-react";
+import { Menu, Mic, MoonStar, Sun } from "lucide-react";
+import { ethers } from "ethers"; // Import ethers for blockchain interaction
 import Logo from "../assets/you.png";
-import UserImg from "../assets/user.jpg";
 import { useEffect, useState } from "react";
+import { abi } from "../scdata/YouTubeClone.json";
+import { CONTRACT_ADDRESS } from "../scdata/deployed_addresses.json";
+import { useNavigate } from "react-router-dom"; // For navigation
 
+// Navbar component
 const Navbar = ({ toggleSidebar }) => {
-  // Initialize dark mode state based on localStorage value
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const savedMode = localStorage.getItem("darkMode");
     return savedMode ? JSON.parse(savedMode) : false;
   });
 
-  // Effect to update body class and localStorage when dark mode state changes
+  const [userAddress, setUserAddress] = useState(null);
+  const [registeredUser, setRegisteredUser] = useState(null);
+  const [username, setUsername] = useState('');
+  const [name, setName] = useState("");
+
+  const navigate = useNavigate(); // For navigation to the search results page
+
   useEffect(() => {
     document.body.classList[isDarkMode ? "add" : "remove"]("dark");
     localStorage.setItem("darkMode", JSON.stringify(isDarkMode));
   }, [isDarkMode]);
 
+  useEffect(() => {
+    const connectWalletAutomatically = async () => {
+      try {
+        if (typeof window.ethereum !== "undefined") {
+          const provider = new ethers.BrowserProvider(window.ethereum);
+          await provider.send("eth_requestAccounts", []);
+  
+          const signer = await provider.getSigner();
+          const userAddress = await signer.getAddress();
+          setUserAddress(userAddress);
+          console.log("Connected wallet:", userAddress);
+  
+          const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
+          const userDetails = await contract.getUser(userAddress);
+          setUsername(userDetails[0]); // This is still necessary to set the state
+          console.log(`Username: ${userDetails[0]}`);
+  
+          // Pass userDetails[0] directly to checkUserRegistration
+          await checkUserRegistration(contract, userAddress, userDetails[0]);
+        } else {
+          console.error("MetaMask is not installed");
+        }
+      } catch (error) {
+        console.error("Error connecting to MetaMask:", error);
+      }
+    };
+  
+    connectWalletAutomatically(); // Automatically connect wallet on component mount
+  }, []);
+  
+  const checkUserRegistration = async (contract, userAddress, username) => {
+    console.log(`Username test: ${username}`);
+    try {
+      if (username) {
+        console.log("Registered");
+      } else {
+        console.error("User is not registered.");
+      //   const confirmRegister = window.confirm("User is not registered. Would you like to register?");
+      // if (confirmRegister) {
+        await registerUser(contract);  // Call the registerUser function
+      // }
+      }
+    } catch (error) {
+      console.error("Error checking user registration:", error);
+    }
+  };
+  
+  const registerUser = async (contract) => {
+    try {
+      if (typeof window.ethereum !== "undefined") {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+    
+        const enteredName = prompt("Please enter your name");
+        console.log(enteredName);
+    
+        if (enteredName) {
+          const tx = await contract.registerUser(enteredName); // Use enteredName directly
+          await tx.wait();
+    
+          console.log("User registered successfully");
+    
+          // Check again if the user is registered
+          const userAddress = await signer.getAddress();
+          await checkUserRegistration(contract, userAddress, enteredName); // Pass enteredName directly to check registration
+        } else {
+          alert("Username cannot be empty.");
+        }
+      }
+    } catch (error) {
+      console.error("Error registering user:", error);
+    }
+  };
+  
+
   // Function to toggle dark mode state
   const toggleDarkMode = () => {
     setIsDarkMode((prevMode) => !prevMode);
   };
+
+
 
   return (
     <header className="sticky top-0 z-10 bg-white dark:bg-neutral-900">
@@ -27,29 +113,8 @@ const Navbar = ({ toggleSidebar }) => {
         {/* Rendering left section of the navbar */}
         <HeaderLeftSection toggleSidebar={toggleSidebar} />
 
-        {/* Search input and mic section */}
-        <div className="h-10 flex gap-3 w-[600px] max-lg:w-[500px] max-md:hidden">
-          <form action="#" className="flex w-full">
-            <input
-              className="border border-neutral-300 w-full h-full rounded-l-full px-4 outline-none focus:border-blue-500 dark:bg-neutral-900 dark:border-neutral-500 dark:focus:border-blue-500 dark:text-neutral-300"
-              type="search"
-              placeholder="Search"
-              required
-            />
-            <button className="border border-neutral-300 px-5 border-l-0 rounded-r-full hover:bg-neutral-100 dark:border-neutral-500 hover:dark:bg-neutral-700">
-              <Search className="dark:text-neutral-400" />
-            </button>
-          </form>
-          <button className="p-2 rounded-full bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 hover:dark:bg-neutral-700">
-            <Mic className="dark:text-neutral-400" />
-          </button>
-        </div>
-
-        {/* User and dark mode toggle section */}
+        {/* User info and dark mode toggle section */}
         <div className="flex items-center gap-4">
-          <button className="p-2 rounded-full md:hidden hover:bg-neutral-200 hover:dark:bg-neutral-700">
-            <Search className="dark:text-neutral-400" />
-          </button>
           <button
             onClick={toggleDarkMode}
             className="p-2 rounded-full hover:bg-neutral-200 hover:dark:bg-neutral-700"
@@ -60,8 +125,17 @@ const Navbar = ({ toggleSidebar }) => {
               <MoonStar className="dark:text-neutral-400" />
             )}
           </button>
-          
-          <button className="px-3 py-1 text-white rounded-lg bg-blue-600 hover:bg-blue-500 shadow-2xl">sign up</button>
+
+          {/* Displaying the connected wallet address and username */}
+          {userAddress ? (
+            <div className="flex items-center gap-4">
+              <span className="text-sm font-bold dark:text-neutral-300">
+                {username ? `${username} (${userAddress})` : userAddress}
+              </span>
+            </div>
+          ) : (
+            <span>Connecting wallet...</span>
+          )}
         </div>
       </nav>
     </header>
