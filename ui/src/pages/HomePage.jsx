@@ -67,7 +67,7 @@ const HomePage = () => {
             description: video.description,
             ipfsHash: video.ipfsHash,
             uploader: video.uploader,
-            timestamp: new Date(parseInt(video.timestamp) * 1000).toLocaleString(),
+            timestamp: video.timestamp.toString(),
             videoUrl: ipfsGatewayUrl, // Use this to display the video
           };
         })

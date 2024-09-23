@@ -1,4 +1,38 @@
+import React, { useEffect, useState } from "react";
+import { ethers } from "ethers";
+import YouTubeCloneABI from "../scdata/YouTubeClone.json";
+
+const contractAddress = "0x8a6d33328ea422533A5e93805b83C0D9151aAA14";
+
 const VideoItem = ({ video }) => {
+  const [uploaderUsername, setUploaderUsername] = useState(""); // State to store uploader's username
+
+  // Function to fetch uploader's username from the contract
+  const fetchUploaderUsername = async () => {
+    try {
+      if (!window.ethereum) {
+        alert("MetaMask is not installed!");
+        return;
+      }
+
+      // Set up ethers provider and contract
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(contractAddress, YouTubeCloneABI.abi, signer);
+
+      // Fetch uploader's username using the getUser function from the contract
+      const [username] = await contract.getUser(video.uploader);
+      setUploaderUsername(username);
+    } catch (error) {
+      console.error("Error fetching uploader's username:", error);
+    }
+  };
+
+  // Fetch uploader's username when the component mounts
+  useEffect(() => {
+    fetchUploaderUsername();
+  }, [video.uploader]); // Re-run if the uploader changes
+
   // Construct the IPFS video URL using the IPFS hash stored in the contract
   const videoUrl = `https://gateway.pinata.cloud/ipfs/${video.ipfsHash}`;
 
@@ -26,7 +60,7 @@ const VideoItem = ({ video }) => {
         <img
           className="h-9 w-9 rounded-full"
           src={video.uploaderLogo || "https://via.placeholder.com/100"} // Placeholder for uploader logo
-          alt={video.uploader}
+          alt={uploaderUsername || "Uploader"}
         />
         <div>
           <h2
@@ -35,9 +69,9 @@ const VideoItem = ({ video }) => {
           >
             {video.title}
           </h2>
-          {/* Uploader and upload timestamp */}
+          {/* Uploader's username and upload timestamp */}
           <p className="text-sm mt-1 text-neutral-700 hover:text-neutral-500 dark:text-neutral-300">
-            {video.uploader}
+            {uploaderUsername || "Unknown uploader"}
           </p>
           <p className="text-sm text-neutral-700 dark:text-neutral-300">
             {new Date(video.timestamp * 1000).toLocaleString()} {/* Convert timestamp to readable date */}

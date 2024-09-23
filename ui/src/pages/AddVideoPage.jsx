@@ -9,8 +9,8 @@ import { abi } from '../scdata/YouTubeClone.json';
 import { CONTRACT_ADDRESS } from '../scdata/deployed_addresses.json';
 
 // Pinata API credentials
-const PINATA_API_KEY = '2393db4223001a4af0c9';
-const PINATA_SECRET_API_KEY = '993847591a85f4369ae490784ffb73ab8160305cf36ed5aecf2522e3f0973846';
+const PINATA_API_KEY = import.meta.env.VITE_PINATA_API;
+const PINATA_SECRET_API_KEY = import.meta.env.VITE_PINATA_SECRET_API;
 
 const AddVideoPage = () => {
     const [selectedFile, setSelectedFile] = useState(null);
