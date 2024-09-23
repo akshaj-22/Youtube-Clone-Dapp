@@ -93,4 +93,4 @@ Contributions are welcome! Feel free to fork the project and submit a pull reque
 
 ## 📝 License
 
-This project is licensed under the MIT License. See the [LICENSE](https://github.com/akshaj-22/certiapp/blob/main/License.txt) file for more details.
+This project is licensed under the MIT License. See the [LICENSE](https://github.com/akshaj-22/Youtube-Clone-Dapp/blob/main/License.txt) file for more details.
