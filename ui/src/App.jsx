@@ -4,7 +4,6 @@ import MainLayout from './layouts/MainLayout'
 import HomePage from './pages/HomePage'
 import AddVideoPage from './pages/AddVideoPage'
 import MyVideos from './pages/MyVideos'
-import SearchResultsPage from './pages/SearchResultsPage'
 
 const App = () => {
   const router = createBrowserRouter(createRoutesFromElements(
@@ -13,7 +12,6 @@ const App = () => {
           <Route path='/' element={<HomePage />} />
           <Route path='/addVideo' element={<AddVideoPage />} />
           <Route path='/myVideos' element={<MyVideos />} />
-          <Route path='/search-results/:searchResults' element={<SearchResultsPage />} />
         </Route>
         
     

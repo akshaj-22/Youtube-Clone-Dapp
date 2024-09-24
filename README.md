@@ -1,4 +1,4 @@
-## ![DApp](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)
+## ![Youtube DApp](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)
 # YouTube Clone dApp - README
 
 ## 👩‍💻 Overview
@@ -90,6 +90,14 @@ Contributions are welcome! Feel free to fork the project and submit a pull reque
 3. Commit your changes (git commit -m 'Add <feature_name>').
 4. Push to the branch (git push origin feature/<feature_name>).
 5. Open a Pull Request.
+
+## 🎥 Demo Video
+
+[![Youtube DApp](https://img.youtube.com/vi/D7aCWHLdXSY/0.jpg)](https://www.youtube.com/watch?v=D7aCWHLdXSY)
+
+## 📧 Contact
+
+For any questions or issues, please contact [akshajbabu21@gmail.com](mailto:akshajbabu21@gmail.com).
 
 ## 📝 License
 
